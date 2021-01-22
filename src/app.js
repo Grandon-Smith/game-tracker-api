@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const {CLIENT_ORIGIN} = require('./config');
+const EndpointsService = require('./endpoints-service')
+const jsonParser = express.json()
 
 
 
@@ -22,6 +24,14 @@ app.use(
 app.use(morgan(morganOption));
 app.use(helmet());
 
+app.get('/users', (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    EndpointsService.getAllUsers(knexInstance)
+        .then(users =>
+            res.json(users)
+        )
+        .catch(next)
+})
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')
