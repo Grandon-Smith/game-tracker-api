@@ -4,11 +4,9 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-const {CLIENT_ORIGIN} = require('./config');
+// const {CLIENT_ORIGIN} = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
-
-
 
 const app = express();
 
@@ -17,12 +15,44 @@ const morganOption = (NODE_ENV === 'production')
 : 'common';
 
 app.use(
-    cors({
-        origin: CLIENT_ORIGIN
-    })
+    cors()
+    // cors({
+    //     origin: CLIENT_ORIGIN
+    // })
 );
+app.use(express.urlencoded({extended: false}))
 app.use(morgan(morganOption));
 app.use(helmet());
+
+
+app.get('/usergames', jsonParser, (req, res, next) => {
+    res.status(200).json(req.body)
+    // const knexInstance = req.app.get('db')
+    // const { email } = req.body
+    // EndpointsService.getUserGames(knexInstance, email)
+    //     .then(games => {
+    //         if(!games) {
+    //             res.status(203).json({
+    //                 error: { message: `Uh oh. Your games are gone!` }
+    //             })
+    //         }
+    //         res.json(games)
+    //     })
+    //     .catch(next)
+})
+
+app.post('/login', jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const {email, password} = req.body;
+    EndpointsService.getUserById(knexInstance, email, password)
+        .then(user => {
+            if(!user) {
+                res.status(400)
+            }
+            res.status(200)
+        })
+        .catch(next)
+})
 
 app.get('/users', (req, res, next) => {
     const knexInstance = req.app.get('db')
