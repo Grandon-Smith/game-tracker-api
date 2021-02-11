@@ -41,17 +41,33 @@ app.get('/usergames', jsonParser, (req, res, next) => {
     //     .catch(next)
 })
 
+app.post('/create-account', jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { email, password } = req.body;
+    const role = 'user'
+    const newUser = {email, role, password};
+    EndpointsService.createNewUser(knexInstance, newUser)
+        .then(user => {
+            return res.redirect(201, '/login')
+        })
+        .catch(next)
+})
+
+
+
 app.post('/login', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const {email, password} = req.body;
+
     EndpointsService.getUserById(knexInstance, email, password)
         .then(user => {
             if(!user) {
-                res.status(400)
+                res.status(204)
             }
-            res.status(200)
+            res
+                .status(200)
+                .send(user)
         })
-        .catch(next)
 })
 
 app.get('/users', (req, res, next) => {
