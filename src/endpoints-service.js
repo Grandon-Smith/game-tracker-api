@@ -25,6 +25,15 @@ const EndpointsService = {
             .select('*')
             .where('email', email)
             .first()
+    },
+    createUserGame(knex, game) {
+        return knex
+            .insert(game)
+            .into('game_tracker_games')
+            .returning('*')
+            .then(rows => {
+                return rows[0]
+            })
     }
 }
 

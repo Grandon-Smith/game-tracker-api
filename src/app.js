@@ -8,6 +8,7 @@ const { NODE_ENV } = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
 
+
 const app = express();
 
 const morganOption = (NODE_ENV === 'production')
@@ -20,10 +21,29 @@ app.use(
     //     origin: CLIENT_ORIGIN
     // })
 );
+
+app.set('view-engine', 'react')
 app.use(express.urlencoded({extended: false}))
 app.use(morgan(morganOption));
 app.use(helmet());
 
+app.post('/addgame', jsonParser, (req, res, next) => {
+    console.log("---------------------------STARTING POST------------------")
+    const knexInstance = req.app.get('db')
+    const { email, gameid } = req.body;
+    // console.log(email, gameid)
+    const game = {email, gameid}
+    console.log(game)
+    EndpointsService.createUserGame(knexInstance, game)
+        .then(game => {
+            if(!game) {
+                console.log('error')
+                res.send('error')
+            }
+            res.send('good')
+        })
+        .catch(next)
+})
 
 app.get('/usergames', jsonParser, (req, res, next) => {
     res.status(200).json(req.body)
@@ -62,12 +82,17 @@ app.post('/login', jsonParser, (req, res, next) => {
     EndpointsService.getUserById(knexInstance, email, password)
         .then(user => {
             if(!user) {
-                res.status(204)
+                res
+                    .status(204)
+                    .json({error: "User not found."})
+                    .end()
             }
             res
                 .status(200)
-                .send(user)
+                .json({user: user})
+                .end()
         })
+        .catch(next)
 })
 
 app.get('/users', (req, res, next) => {
