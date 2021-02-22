@@ -45,20 +45,21 @@ app.post('/addgame', jsonParser, (req, res, next) => {
         .catch(next)
 })
 
-app.get('/usergames', jsonParser, (req, res, next) => {
-    res.status(200).json(req.body)
-    // const knexInstance = req.app.get('db')
-    // const { email } = req.body
-    // EndpointsService.getUserGames(knexInstance, email)
-    //     .then(games => {
-    //         if(!games) {
-    //             res.status(203).json({
-    //                 error: { message: `Uh oh. Your games are gone!` }
-    //             })
-    //         }
-    //         res.json(games)
-    //     })
-    //     .catch(next)
+app.post('/usergames', jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { email } = req.body
+    console.log(email)
+    EndpointsService.getUserGames(knexInstance, email)
+        .then(games => {
+            if(!games) {
+                res.status(204).json({
+                    error: { message: `Uh oh. Your games are gone!` }
+                })
+            }
+            console.log(games)
+            res.json(games)
+        })
+        .catch(next)
 })
 
 app.post('/create-account', jsonParser, (req, res, next) => {

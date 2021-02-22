@@ -24,7 +24,7 @@ const EndpointsService = {
             .from('game_tracker_games')
             .select('*')
             .where('email', email)
-            .first()
+            // .first()
     },
     createUserGame(knex, game) {
         return knex
