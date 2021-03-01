@@ -7,6 +7,7 @@ const { NODE_ENV } = require('./config');
 // const {CLIENT_ORIGIN} = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
+const emailExistence = require('email-existence')
 
 
 const app = express();
@@ -27,13 +28,21 @@ app.use(express.urlencoded({extended: false}))
 app.use(morgan(morganOption));
 app.use(helmet());
 
+app.delete('/removegame', jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db')
+    const { email, gameid } = req.body;
+    EndpointsService.removeUserGame(knexInstance, email, gameid)
+    .then(numRowsAffected => {
+        res.status(204).end()
+    })
+    .catch(next)
+})
+
 app.post('/addgame', jsonParser, (req, res, next) => {
     console.log("---------------------------STARTING POST------------------")
     const knexInstance = req.app.get('db')
     const { email, gameid } = req.body;
-    // console.log(email, gameid)
     const game = {email, gameid}
-    console.log(game)
     EndpointsService.createUserGame(knexInstance, game)
         .then(game => {
             if(!game) {
@@ -65,13 +74,35 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 app.post('/create-account', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { email, password } = req.body;
-    const role = 'user'
-    const newUser = {email, role, password};
-    EndpointsService.createNewUser(knexInstance, newUser)
-        .then(user => {
-            return res.redirect(201, '/login')
-        })
-        .catch(next)
+    console.log(email)
+    emailExistence.check( email, function(error, response){
+        if(response === true) {
+            console.log('res: ' + response)
+            const role = 'user'
+            const newUser = {email, role, password};
+            EndpointsService.createNewUser(knexInstance, newUser)
+                .then(user => {
+                    return res
+                        .status(201)
+                        .json(user)
+                })
+                .catch(next)
+        } else if (response === false){
+            console.log('res: ' + response)
+            res
+                .status(200)
+                .json({
+                    status: response,
+                    errorMessage: "It looks like that isn\'t a valid email address, please check that it is correct and try again."
+                })
+        } else if (error) {
+            console.log('res: ' + response)
+            res
+                .status(500)
+                .json({errorMessage: error})
+        }
+    });
+    
 })
 
 

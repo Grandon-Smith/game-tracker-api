@@ -34,6 +34,13 @@ const EndpointsService = {
             .then(rows => {
                 return rows[0]
             })
+    },
+    removeUserGame(knex, email, gameid) {
+        return knex
+            .from('game_tracker_games')
+            .where('email', email)
+            .where('gameid', gameid)
+            .delete()
     }
 }
 
