@@ -8,6 +8,8 @@ const { NODE_ENV } = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
 const emailExistence = require('email-existence')
+const { check } = require('express-validator')
+const validator = require("email-validator");
 
 
 const app = express();
@@ -74,34 +76,36 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 app.post('/create-account', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { email, password } = req.body;
-    console.log(email)
-    emailExistence.check( email, function(error, response){
-        if(response === true) {
-            console.log('res: ' + response)
-            const role = 'user'
-            const newUser = {email, role, password};
-            EndpointsService.createNewUser(knexInstance, newUser)
-                .then(user => {
-                    return res
-                        .status(201)
-                        .json(user)
-                })
-                .catch(next)
-        } else if (response === false){
-            console.log('res: ' + response)
-            res
-                .status(200)
-                .json({
-                    status: response,
-                    errorMessage: "It looks like that isn\'t a valid email address, please check that it is correct and try again."
-                })
-        } else if (error) {
-            console.log('res: ' + response)
-            res
-                .status(500)
-                .json({errorMessage: error})
-        }
-    });
+    let response = validator.validate(email.trim())
+    console.log(response)
+
+
+    if(response === true) {
+        console.log('TRUE')
+        const role = 'user'
+        const newUser = {email, role, password};
+        // EndpointsService.createNewUser(knexInstance, newUser)
+        //     .then(user => {
+        //         return res
+        //             .status(201)
+        //             .json(user)
+        //     })
+        //     .catch(next)
+    } else if (response === false){
+        console.log('FALSE')
+        res
+            .status(200)
+            .json({
+                errorMessage: "It looks like that isn\'t a valid email address, please check that it is correct and try again."
+            })
+            .end()
+    } else {
+        console.log('ERROR')
+        res
+            .status(500)
+            .json({errorMessage: 'error'})
+            .end()
+    };
     
 })
 
