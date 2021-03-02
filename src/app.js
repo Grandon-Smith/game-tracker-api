@@ -7,8 +7,6 @@ const { NODE_ENV } = require('./config');
 // const {CLIENT_ORIGIN} = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
-const emailExistence = require('email-existence')
-const { check } = require('express-validator')
 const validator = require("email-validator");
 
 
@@ -18,12 +16,7 @@ const morganOption = (NODE_ENV === 'production')
 ? 'tiny'
 : 'common';
 
-app.use(
-    cors()
-    // cors({
-    //     origin: CLIENT_ORIGIN
-    // })
-);
+app.use(cors());
 
 app.set('view-engine', 'react')
 app.use(express.urlencoded({extended: false}))
@@ -75,38 +68,33 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 
 app.post('/create-account', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
     let response = validator.validate(email.trim())
-    console.log(response)
-
 
     if(response === true) {
         console.log('TRUE')
         const role = 'user'
-        const newUser = {email, role, password};
-        // EndpointsService.createNewUser(knexInstance, newUser)
-        //     .then(user => {
-        //         return res
-        //             .status(201)
-        //             .json(user)
-        //     })
-        //     .catch(next)
+        const newUser = {username, email, role, password};
+        EndpointsService.createNewUser(knexInstance, newUser)
+            .then(user => {
+                return res
+                    .status(201)
+                    .json(user)
+            })
+            .catch(next)
     } else if (response === false){
         console.log('FALSE')
-        res
+        return res
             .status(200)
             .json({
                 errorMessage: "It looks like that isn\'t a valid email address, please check that it is correct and try again."
             })
-            .end()
     } else {
         console.log('ERROR')
-        res
+        return res
             .status(500)
-            .json({errorMessage: 'error'})
-            .end()
+            .json({errorMessage: 'Internal error'})
     };
-    
 })
 
 

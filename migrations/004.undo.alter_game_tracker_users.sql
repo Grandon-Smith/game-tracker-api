@@ -1,0 +1,1 @@
+ALTER TABLE game_tracker_users DROP COLUMN IF EXISTS username;
