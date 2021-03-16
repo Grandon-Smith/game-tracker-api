@@ -5,8 +5,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const EndpointsService = require('./endpoints-service')
-const jsonParser = express.json()
+const jsonParser = express.json();
 const validator = require("email-validator");
+const cors_proxy = require('cors-anywhere')
 
 
 const app = express();
