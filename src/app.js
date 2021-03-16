@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-// const {CLIENT_ORIGIN} = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json()
 const validator = require("email-validator");
@@ -23,6 +22,7 @@ app.use(express.urlencoded({extended: false}))
 app.use(morgan(morganOption));
 app.use(helmet());
 
+
 app.delete('/removegame', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { email, gameid } = req.body;
@@ -34,7 +34,6 @@ app.delete('/removegame', jsonParser, (req, res, next) => {
 })
 
 app.post('/addgame', jsonParser, (req, res, next) => {
-    console.log("---------------------------STARTING POST------------------")
     const knexInstance = req.app.get('db')
     const { email, gameid } = req.body;
     const game = {email, gameid}
@@ -42,9 +41,9 @@ app.post('/addgame', jsonParser, (req, res, next) => {
         .then(game => {
             if(!game) {
                 console.log('error')
-                res.send('error')
+                res.json({message: 'error'})
             }
-            res.send('good')
+            res.json({message: 'good'})
         })
         .catch(next)
 })
@@ -96,8 +95,6 @@ app.post('/create-account', jsonParser, (req, res, next) => {
             .json({errorMessage: 'Internal error'})
     };
 })
-
-
 
 app.post('/login', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
