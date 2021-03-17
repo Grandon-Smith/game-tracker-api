@@ -1,6 +1,6 @@
 const EndpointsService = {
     getAllUsers(knex) {
-        return knex.select('*').from('game_tracker_users')
+        return knex.select('*').from('public.game_tracker_users')
     },
     getUserById(knex, email, password) {
         return knex 
