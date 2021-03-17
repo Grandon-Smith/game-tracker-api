@@ -16,6 +16,14 @@ const morganOption = (NODE_ENV === 'production')
 ? 'tiny'
 : 'common';
 
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
+
 app.use(cors());
 
 app.set('view-engine', 'react')
