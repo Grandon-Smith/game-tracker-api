@@ -18,8 +18,21 @@ const { PORT, DATABASE_URL } = require('./config')
 // });
 
 const db = knex({
-  client: 'pg',
+  client: 'postgres',
   connection: DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  searchPath: ['knex', 'public'],
+  pool: { min: 0, max: 10 },
+  log: {
+    warn(message) {
+    },
+    error(message) {
+    },
+    deprecate(message) {
+    },
+    debug(message) {
+    },
+  }
 })
 
 app.set('db', db)

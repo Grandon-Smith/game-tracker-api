@@ -26,9 +26,22 @@ app.use(morgan(morganOption));
 app.use(helmet());
 
 const db = knex({
-    client: 'pg',
-    connection: DATABASE_URL,
-  })
+    client: 'postgres',
+  connection: DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+  searchPath: ['knex', 'public'],
+  pool: { min: 0, max: 10 },
+  log: {
+    warn(message) {
+    },
+    error(message) {
+    },
+    deprecate(message) {
+    },
+    debug(message) {
+    },
+  }
+})
 
 // app.delete('/removegame', jsonParser, (req, res, next) => {
 //     const knexInstance = req.app.get('db')

@@ -1,6 +1,8 @@
 node_modules
+CRT
 .env
 .csr
 .crt
 server.crt
 server.csr
+server.key
