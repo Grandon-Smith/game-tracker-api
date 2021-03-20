@@ -88,6 +88,13 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 app.post('/create-account', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { username, email, password } = req.body;
+    let response;
+    if (username && email && password) {
+        response === true;
+    } else {
+        response === false
+    }
+
 
     if(response === true) {
         console.log('TRUE')
