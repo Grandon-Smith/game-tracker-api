@@ -26,9 +26,9 @@ app.use(morgan(morganOption));
 app.use(helmet());
 
 const db = knex({
-    client: 'postgres',
+  client: 'postgres',
   connection: DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: true,
   searchPath: ['knex', 'public'],
   pool: { min: 0, max: 10 },
   log: {
