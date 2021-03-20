@@ -71,7 +71,6 @@ app.post('/addgame', jsonParser, (req, res, next) => {
 app.post('/usergames', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { email } = req.body
-    console.log(email)
     EndpointsService.getUserGames(knexInstance, email)
         .then(games => {
             if(!games) {
@@ -88,13 +87,8 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 app.post('/create-account', jsonParser, (req, res, next) => {
     const knexInstance = req.app.get('db')
     const { username, email, password } = req.body;
-    let response;
-    if (username && email && password) {
-        response === true;
-    } else {
-        response === false
-    }
-
+    console.log(username, email, password)
+    let response = true;
 
     if(response === true) {
         console.log('TRUE')
