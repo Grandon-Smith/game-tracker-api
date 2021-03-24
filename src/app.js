@@ -78,7 +78,6 @@ app.post('/usergames', jsonParser, (req, res, next) => {
                     error: { message: `Uh oh. Your games are gone!` }
                 })
             }
-            console.log(games)
             res.json(games)
         })
         .catch(next)
@@ -87,12 +86,9 @@ app.post('/usergames', jsonParser, (req, res, next) => {
 app.post('/create-account', jsonParser, async (req, res, next) => {
         const knexInstance = req.app.get('db')
         let { username, email, password } = req.body;
-        console.log(username, email, password)
         try {
             const salt = await bcrypt.genSalt(8)
             password = await bcrypt.hash(password, salt)
-            console.log(salt)
-            console.log(password)
             const role = 'user'
             const newUser = {username, email, role, password};
             EndpointsService.createNewUser(knexInstance, newUser)
@@ -132,23 +128,14 @@ app.post('/login', jsonParser, (req, res, next) => {
         .catch(next)
 })
 
-app.get('/users', (req, res, next) => {
-    const knexInstance = req.app.get('db')
-    EndpointsService.getAllUsers(knexInstance)
-        .then(users =>
-            res.json(users)
-        )
-        .catch(next)
-})
-
-app.get('/users', (req, res, next) => {
-    const knexInstance = db
-    EndpointsService.getAllUsers(knexInstance)
-        .then(users =>
-            res.json(users)
-        )
-        .catch(next)
-})
+// app.get('/users', (req, res, next) => {
+//     const knexInstance = db
+//     EndpointsService.getAllUsers(knexInstance)
+//         .then(users =>
+//             res.json(users)
+//         )
+//         .catch(next)
+// })
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')
