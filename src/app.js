@@ -7,8 +7,8 @@ const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const EndpointsService = require('./endpoints-service')
 const jsonParser = express.json();
-const { Pool } = require('pg');
 const { PORT, DATABASE_URL } = require('./config')
+const bcrypt = require('bcrypt')
 
 
 
@@ -84,36 +84,32 @@ app.post('/usergames', jsonParser, (req, res, next) => {
         .catch(next)
 })
 
-app.post('/create-account', jsonParser, (req, res, next) => {
-    const knexInstance = req.app.get('db')
-    const { username, email, password } = req.body;
-    console.log(username, email, password)
-    let response = true;
+app.post('/create-account', jsonParser, async (req, res, next) => {
+        const knexInstance = req.app.get('db')
+        let { username, email, password } = req.body;
+        console.log(username, email, password)
+        try {
+            const salt = await bcrypt.genSalt(8)
+            password = await bcrypt.hash(password, salt)
+            console.log(salt)
+            console.log(password)
+            const role = 'user'
+            const newUser = {username, email, role, password};
+            EndpointsService.createNewUser(knexInstance, newUser)
+                .then(user => {
+                    return res
+                        .status(201)
+                        .json(user)
+                })
+                .catch()
 
-    if(response === true) {
-        console.log('TRUE')
-        const role = 'user'
-        const newUser = {username, email, role, password};
-        EndpointsService.createNewUser(knexInstance, newUser)
-            .then(user => {
-                return res
-                    .status(201)
-                    .json(user)
-            })
-            .catch(next)
-    } else if (response === false){
-        console.log('FALSE')
-        return res
-            .status(200)
-            .json({
-                errorMessage: "It looks like that isn\'t a valid email address, please check that it is correct and try again."
-            })
-    } else {
-        console.log('ERROR')
-        return res
-            .status(500)
-            .json({errorMessage: 'Internal error'})
-    };
+        } catch {
+            console.log('ERROR')
+            return res
+                .status(500)
+                .json({errorMessage: 'Internal error'})
+                .end()
+        }
 })
 
 app.post('/login', jsonParser, (req, res, next) => {
