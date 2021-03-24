@@ -7,7 +7,7 @@ const EndpointsService = {
             .from('game_tracker_users')
             .select('*')
             .where('email', email)
-            .where('password', password)
+            // .where('password', password)
             .first()
     },
     createNewUser(knex, newUser) {

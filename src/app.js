@@ -108,34 +108,41 @@ app.post('/create-account', jsonParser, async (req, res, next) => {
         }
 })
 
-app.post('/login', jsonParser, (req, res, next) => {
+app.post('/login', jsonParser, async (req, res, next) => {
     const knexInstance = req.app.get('db')
     const {email, password} = req.body;
-
-    EndpointsService.getUserById(knexInstance, email, password)
+    console.log(email, password)
+    await EndpointsService.getUserById(knexInstance, email, password)
         .then(user => {
             if(!user) {
-                res
+                return res
                     .status(204)
                     .json({error: "User not found."})
-                    .end()
+            } else {
+                console.log(user)
+                if (bcrypt.compare(password, user.password)) {
+                    return res
+                        .status(200)
+                        .json({user: user})
+                } else {
+                    return res
+                        .status(204)
+                        .json({error: "Password does not match our database!"})
+                }
             }
-            res
-                .status(200)
-                .json({user: user})
-                .end()
-        })
-        .catch(next)
+            })
+            .catch(next)
+   
 })
 
-// app.get('/users', (req, res, next) => {
-//     const knexInstance = db
-//     EndpointsService.getAllUsers(knexInstance)
-//         .then(users =>
-//             res.json(users)
-//         )
-//         .catch(next)
-// })
+app.get('/users', (req, res, next) => {
+    const knexInstance = db
+    EndpointsService.getAllUsers(knexInstance)
+        .then(users =>
+            res.json(users)
+        )
+        .catch(next)
+})
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')
